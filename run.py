@@ -2,14 +2,16 @@
 from subprocess import (Popen, PIPE)
 import capnp
 import holmes_capnp
-
+import os
+import sys
 holmes = "/home/maurer/Sources/holmes-build/server/holmes"
 container = "/home/maurer/Sources/container-build/obj.holmes"
 chunker = "/home/maurer/Sources/container-build/chunk.holmes"
 
-holmesProc = Popen([holmes], stdout=PIPE, stderr=PIPE)
+holmesProc = Popen([holmes], stdout=PIPE)
 
 port = int(holmesProc.stdout.readline())
+os.dup2(sys.stdout.fileno(), holmesProc.stdout.fileno())
 
 addr = "localhost:" + str(port)
 
@@ -28,7 +30,7 @@ for pymod in pymods:
 
 print("Port: " + str(port))
 
-fileName = "/home/maurer/base64.arm"
+fileName = "/home/maurer/hello"
 with open(fileName, mode='rb') as file:
     fileContent = file.read()
 
@@ -38,7 +40,6 @@ holmes.set({'factName' : "file",
             'args'     : [{'stringVal' : fileName},
                           {'blobVal'   : fileContent}]}).wait()
 
-import os
 import signal
 for pypid in pypids:
   os.kill(pypid, signal.SIGKILL)

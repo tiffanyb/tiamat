@@ -16,6 +16,9 @@ class MaybeFunc(holmes_capnp.Holmes.Analysis.Server):
     _context.results.derived = res
 
 def register(holmes):
+  holmes.registerType(factName = 'func', argTypes = ['string', 'addr']).wait()
+  holmes.registerType(factName = 'reachable', argTypes = ['string', 'addr']).wait()
+  
   req = holmes.analyzer_request()
   req.analysis = MaybeFunc()
   premiseBuilder = req.init('premises', 1)
