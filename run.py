@@ -38,13 +38,13 @@ analProcs = []
 for prog in analProgs:
   analProcs.append(Popen([prog, addr]))
 
-import maybe_func
+import func
 import toil
-from anal_helper import forkRegister
-pymods = [maybe_func, toil]
+from holmes import forkRegister
+pymods = [func.MarkFuncs(), toil.ToIL()]
 pypids = []
 for pymod in pymods:
-  pypids += [forkRegister(pymod.register, addr)]
+  pypids += [forkRegister(pymod, addr)]
 
 print("Port: " + str(port))
 
