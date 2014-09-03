@@ -12,7 +12,7 @@ class ToIL():
              ,Premise("word128",   [Bind("fileName", "string")
                                    ,Bind("addr",     "addr")
                                    ,Bind("data",     "blob")])]
-  conclusions = [ConcTy("hasil", ["string", "addr", "string"])]
+  conclusions = [ConcTy("hasil", ["string", "addr", "json"])]
   name = "ToIL"
   def analyze(self, fileName, arch, addr, data):
     toilProc = Popen([toil, '--arch', arch, '--addr', str(addr),'--format' , 'json'], stdout=PIPE, stderr=PIPE, stdin=PIPE)
@@ -21,7 +21,7 @@ class ToIL():
     jstr = toilProc.stdout.read().decode()
     try:
       out = json.loads(jstr)
-      return [Conc("hasil", [fileName, addr, jstr])]
+      return [Conc("hasil", [fileName, addr, out])]
     except ValueError:
       print("No IL")
       print(ctx)

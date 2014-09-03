@@ -10,6 +10,10 @@ def fromDyn(val):
     return val.addrVal
   elif val.which == 'blobVal':
     return val.blobVal
+  elif val.which == 'jsonVal':
+    return json.loads(val.jsonVal)
+  else:
+    raise TypeError("Unknown type input")
 
 class Blob: pass
 
@@ -20,6 +24,12 @@ def toDyn(tgt, val):
     tgt.addrVal = val
   elif isinstance(val, Blob):
     pass # No blob support for returns yet
+  elif isinstance(val, dict):
+    tgt.jsonVal = json.dumps(val)
+  elif isinstance(val, list):
+    tgt.jsonVal = json.dumps(val)
+  else:
+    raise TypeError("Unknown type output: " + str(type(val)))
 
 def loadCtx(context):
   res = {}
@@ -63,9 +73,11 @@ def register(analysis, addr):
     argTyper = []
     for arg in premise.args:
       argTyper += [arg.typ]
-    holmes.registerType(factName = premise.name, argTypes = argTyper)
+    if not holmes.registerType(factName = premise.name, argTypes = argTyper):
+      raise TypeError("Type mismatch for premise: " + str(premise))
   for conc in analysis.conclusions:
-    holmes.registerType(factName = conc.name, argTypes = conc.argtys)
+    if not holmes.registerType(factName = conc.name, argTypes = conc.argtys):
+      raise TypeError("Type mismatch for conclusion: " + str(conc))
   req = holmes.analyzer_request()
   req.name = analysis.name
   premLen = len(analysis.premises)
