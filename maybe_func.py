@@ -20,6 +20,7 @@ def register(holmes):
   holmes.registerType(factName = 'reachable', argTypes = ['string', 'addr']).wait()
   
   req = holmes.analyzer_request()
+  req.name = "markFuncs"
   req.analysis = MaybeFunc()
   premiseBuilder = req.init('premises', 1)
   premiseBuilder[0].factName = "symbol"
