@@ -40,8 +40,10 @@ for prog in analProgs:
 
 import func
 import toil
+import succ
+import reach
 from holmes import forkRegister
-pymods = [func.MarkFuncs(), toil.ToIL()]
+pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc()]
 pypids = []
 for pymod in pymods:
   pypids += [forkRegister(pymod, addr)]
