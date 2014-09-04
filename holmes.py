@@ -73,10 +73,10 @@ def register(analysis, addr):
     argTyper = []
     for arg in premise.args:
       argTyper += [arg.typ]
-    if not holmes.registerType(factName = premise.name, argTypes = argTyper):
+    if not holmes.registerType(factName = premise.name, argTypes = argTyper).wait():
       raise TypeError("Type mismatch for premise: " + str(premise))
   for conc in analysis.conclusions:
-    if not holmes.registerType(factName = conc.name, argTypes = conc.argtys):
+    if not holmes.registerType(factName = conc.name, argTypes = conc.argtys).wait():
       raise TypeError("Type mismatch for conclusion: " + str(conc))
   req = holmes.analyzer_request()
   req.name = analysis.name
