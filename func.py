@@ -5,7 +5,6 @@ class MarkFuncs():
                                 ,Unbound("string")
                                 ,Bind("addr", "addr")
                                 ,Unbound("addr")
-                                ,Unbound("addr")
                                 ,Exact("func", "string")])]
   conclusions = [ConcTy("func", ["string", "addr"]),
                  ConcTy("reachable", ["string", "addr"])]
