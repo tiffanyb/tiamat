@@ -63,9 +63,9 @@ import datetime
 time.sleep(1);
 
 begin = datetime.datetime.now()
-holmes.set({'factName' : "file",
-            'args'     : [{'stringVal' : fileName},
-                          {'blobVal'   : fileContent}]}).wait()
+holmes.set([{'factName' : "file",
+             'args'     : [{'stringVal' : fileName},
+                           {'blobVal'   : fileContent}]}]).wait()
 done = datetime.datetime.now()
 
 print(done - begin)
