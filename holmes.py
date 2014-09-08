@@ -98,7 +98,7 @@ def register(analysis, addr):
       else:
         argBuilder[j].unbound = None
   class Analysis(holmes_capnp.Holmes.Analysis.Server):
-    def analyze (self, context, premises, _context, **kwargs):
+    def analyze (self, context, _context, **kwargs):
       ctx = loadCtx(context)
       out = analysis.analyze(**ctx)
       _context.results.init('derived', len(out))
