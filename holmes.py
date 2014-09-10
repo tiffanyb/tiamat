@@ -33,8 +33,8 @@ def toDyn(tgt, val):
 
 def loadCtx(context):
   res = {}
-  for binding in context:
-    res[binding.var] = fromDyn(binding.val)
+  for var,val in context.items():
+    res[var] = fromDyn(val)
   return res
 
 class Premise:
@@ -82,6 +82,7 @@ def register(analysis, addr):
   req.name = analysis.name
   premLen = len(analysis.premises)
   premiseBuilder = req.init('premises', premLen)
+  argNames = []
   for i in range(0, premLen):
     premise = analysis.premises[i]
     premiseBuilder[i].factName = premise.name
@@ -90,7 +91,10 @@ def register(analysis, addr):
     argBuilder = premiseBuilder[i].init('args', argLen)
     for j in range(0, argLen):
       if isinstance(args[j], Bind):
-        argBuilder[j].bound = args[j].var
+        var = args[j].var
+        if var not in argNames:
+          argNames.append(var)
+        argBuilder[j].bound = argNames.index(var)
       elif isinstance(args[j], Exact):
         toDyn(argBuilder[j].exactVal, args[j].val)
       elif isinstance(args[j], Unbound):
@@ -99,7 +103,8 @@ def register(analysis, addr):
         argBuilder[j].unbound = None
   class Analysis(holmes_capnp.Holmes.Analysis.Server):
     def analyze (self, context, _context, **kwargs):
-      ctx = loadCtx(context)
+      cdict = dict(zip(argNames, context))
+      ctx = loadCtx(cdict)
       out = analysis.analyze(**ctx)
       _context.results.init('derived', len(out))
       for i in range(0, len(out)):
