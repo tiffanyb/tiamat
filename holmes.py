@@ -57,6 +57,11 @@ class Bind:
     self.var = var
     self.typ = typ
 
+class Forall:
+  def __init__(self, var, typ):
+    self.var = var
+    self.typ = typ
+
 class Unbound:
   def __init__(self, typ):
     self.typ = typ
@@ -95,6 +100,10 @@ def register(analysis, addr):
         if var not in argNames:
           argNames.append(var)
         argBuilder[j].bound = argNames.index(var)
+      elif isinstance(args[j], Forall):
+        var = args[j].var
+        argNames.append(var)
+        argBuilder[j].forall = argNames.index(var)
       elif isinstance(args[j], Exact):
         toDyn(argBuilder[j].exactVal, args[j].val)
       elif isinstance(args[j], Unbound):

@@ -20,11 +20,11 @@ class LooseSucc():
           val = texp["inte"]["int"]
           valb = int.from_bytes(base64.b64decode(val), byteorder='little')
           tgts += [valb]
-      if "while-stmt" in stmt:
-        tgts += getTargets(stmt["while-stmt"]["loop-body"])[0]
-      if "if-stmt" in stmt:
-        tt,tj = getTargets(stmt["if-stmt"]["true-branch"])
-        ft,fj = getTargets(stmt["if-stmt"]["true-branch"])
+      if "while_stmt" in stmt:
+        tgts += self.getTargets(stmt["while_stmt"]["loop_body"])[0]
+      if "if_stmt" in stmt:
+        tt,tj = self.getTargets(stmt["if_stmt"]["true_branch"])
+        ft,fj = self.getTargets(stmt["if_stmt"]["false_branch"])
         uncond |= (tj & fj)
         tgts += tt
         tgts += ft

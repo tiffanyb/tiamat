@@ -42,8 +42,9 @@ import func
 import toil
 import succ
 import reach
+import dumpKV
 from holmes import forkRegister
-pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc()]
+pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc(), dumpKV.DumpKV()]
 pypids = []
 for pymod in pymods:
   pypids += [forkRegister(pymod, addr)]
