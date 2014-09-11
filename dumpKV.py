@@ -7,9 +7,9 @@ class DumpKV:
   premises = [Premise("fallthrough", [Bind("fileName", "string")
                                      ,Bind("addr", "addr")
                                      ,Bind("fall", "addr")])
-           #  ,Premise("succ", [Bind("fileName", "string")
-           #                   ,Bind("addr", "addr")
-           #                   ,Forall("succs", "addr")])
+             ,Premise("succ", [Bind("fileName", "string")
+                              ,Bind("addr", "addr")
+                              ,Forall("succs", "addr")])
              ,Premise("arch", [Bind("fileName", "string")
                               ,Bind("arch", "string")])
              ,Premise("succ", [Bind("fileName", "string")
@@ -17,7 +17,7 @@ class DumpKV:
                               ,Bind("addr", "addr")])]
   conclusions = []
   name = "DumpKV"
-  def analyze(self, fileName, addr, fall, preds, arch):
-    print((addr, preds))
+  def analyze(self, fileName, addr, fall, preds, succs, arch):
+    print((addr, preds, succs))
     sys.stdout.flush()
     return []
