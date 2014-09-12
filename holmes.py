@@ -12,6 +12,8 @@ def fromDyn(val):
     return val.blobVal
   elif val.which == 'jsonVal':
     return json.loads(val.jsonVal)
+  elif val.which == 'listVal':
+    return list(map(fromDyn, val.listVal))
   else:
     raise TypeError("Unknown type input")
 
@@ -77,11 +79,14 @@ def register(analysis, addr):
   for premise in analysis.premises:
     argTyper = []
     for arg in premise.args:
-      argTyper += [arg.typ]
+      argTyper += [{arg.typ : None}]
     if not holmes.registerType(factName = premise.name, argTypes = argTyper).wait():
       raise TypeError("Type mismatch for premise: " + str(premise))
   for conc in analysis.conclusions:
-    if not holmes.registerType(factName = conc.name, argTypes = conc.argtys).wait():
+    argTyper = []
+    for ty in conc.argtys:
+      argTyper += [{ty : None}]
+    if not holmes.registerType(factName = conc.name, argTypes = argTyper).wait():
       raise TypeError("Type mismatch for conclusion: " + str(conc))
   req = holmes.analyzer_request()
   req.name = analysis.name
