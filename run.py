@@ -59,8 +59,29 @@ funcs = holmes.deriveFacts([Premise("func", [Bind("fileName", "string")
                                             ,Bind("addr", "addr")])
                           ,Premise("reaches", [Bind("fileName", "string")
                                               ,Bind("addr", "addr")
-                                              ,Forall("target", "addr")])])
-print(list(funcs))
+                                              ,Forall("body", "addr")])])
+for func in funcs:
+  print("Function at: " + hex(func['addr']))
+  for addr in func['body']:
+    il = holmes.deriveFacts([Premise("hasil", [Exact(func['fileName'], "string")
+                                              ,Exact(addr, "addr")
+                                              ,Bind("il", "json")])])
+    print(hex(addr) + ":")
+    il = list(il)
+    if len(il) == 0:
+      print("No IL available")
+    else:
+      print(str(il[0]['il']))
+
+    asm = holmes.deriveFacts([Premise("hasasm", [Exact(func['fileName'], "string")
+                                                ,Exact(addr, "addr")
+                                                ,Bind("asm", "string")])])
+    asm = list(asm)
+    if len(asm) == 0:
+      print("No Disassembly available")
+    else:
+      print(str(asm[0]['asm']))
+
 import signal
 for pypid in pypids:
   os.kill(pypid, signal.SIGKILL)
