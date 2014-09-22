@@ -1,8 +1,13 @@
 from holmes import *
 import json
 from subprocess import (Popen, PIPE)
+import socket
 
-toil = "/home/maurer/Sources/bap-lifter/toil.native"
+bapd = "bapd"
+bapProc = Popen([bapd], stdout=PIPE)
+addr = bapProc.stdout.readline()
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+sock.connect('/tmp/bapd')
 
 class ToIL():
   premises = [Premise("arch", [Bind("fileName", "string")
@@ -17,14 +22,22 @@ class ToIL():
                  ConcTy("hasasm", ["string", "addr", "string"])]
   name = "ToIL"
   def analyze(self, fileName, arch, addr, data):
-    toilProc = Popen([toil, '--arch', arch, '--addr', str(addr),'--format' , 'json', '--dump-asm', '--dump-fallthrough'], stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    toilProc.stdin.write(data)
-    toilProc.stdin.close()
-    s = toilProc.stdout.read().decode()
+    c = chr(0)
+    if (arch == 'x86'):
+      c = chr(0)
+    if (arch == 'x86_64'):
+      c = chr(1)
+    if (arch == 'arm'):
+      c = chr(2)
+    encAddr = "{0:0{1}x}".format(addr,16)
+    data = data.ljust(16, '\0'.encode())
+    pay = c.encode() + data + encAddr.encode()
+    sock.send(c.encode() + data + encAddr.encode())
+    s = sock.recv(65536).decode()
     try:
       out,pos = json.JSONDecoder().raw_decode(s)
       rest = s[pos+1:].split('\n')
-      if rest[0] == "Assembly not available for this architecture.":
+      if rest[0] == "None":
         asm = []
       else:
         asm = [Conc("hasasm", [fileName, addr, rest[0]])]

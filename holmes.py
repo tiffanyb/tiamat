@@ -24,14 +24,29 @@ def toDyn(tgt, val):
     tgt.stringVal = val
   elif isinstance(val, int):
     tgt.addrVal = val
-  elif isinstance(val, Blob):
-    pass # No blob support for returns yet
+  elif isinstance(val, bytes):
+    tgt.blobVal = val
   elif isinstance(val, dict):
     tgt.jsonVal = json.dumps(val)
   elif isinstance(val, list):
     tgt.jsonVal = json.dumps(val)
   else:
     raise TypeError("Unknown type output: " + str(type(val)))
+
+def toDynS(val):
+  if isinstance(val, str):
+    return {'stringVal' : val}
+  elif isinstance(val, int):
+    return {'addrVal' : val}
+  elif isinstance(val, bytes):
+    return {'blobVal' : val}
+  elif isinstance(val, dict):
+    tgt.jsonVal = json.dumps(val)
+  elif isinstance(val, list):
+    tgt.jsonVal = json.dumps(val)
+  else:
+    raise TypeError("Unknown type output: " + str(type(val)))
+
 
 def loadCtx(context):
   res = {}
@@ -136,3 +151,18 @@ def forkRegister(obj, addr):
     register(obj, addr)
     sys.exit(0)
   return pid
+
+class Fact:
+  def __init__(self, name, args):
+    self.name = name
+    self.args = args
+  def getRaw(self):
+    return {'factName' : self.name,
+            'args'     : list(map(toDynS, self.args))}
+
+class Holmes:
+  def __init__(self, addr):
+    self.client = capnp.TwoPartyClient(addr)
+    self.holmes = self.client.ez_restore('holmes').cast_as(holmes_capnp.Holmes)
+  def setFacts(self, facts):
+    self.holmes.set(list(map(lambda f: f.getRaw(), facts))).wait()
