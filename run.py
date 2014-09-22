@@ -13,8 +13,6 @@ subprocess.check_call('echo "drop database ' + dbname + '; create database ' + d
 
 env = os.environ.copy()
 env['PGDATABASE'] = dbname
-env['GLOG_logtostderr'] = '1'
-env['GLOG_stderrthreshold'] = '0'
 holmesProc = Popen(['holmes'], stdout=PIPE, env=env)
 
 port = int(holmesProc.stdout.readline())
