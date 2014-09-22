@@ -1,1 +1,1 @@
-../holmes/server/holmes.capnp
+/home/bap/holmes/server/holmes.capnp

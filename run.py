@@ -30,8 +30,10 @@ import toil
 import succ
 import reach
 import dumpKV
+import byteweight
 from holmes import *
-pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc()]
+# pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc()]
+pymods = [toil.ToIL(), succ.LooseSucc(), reach.ReachSucc(), byteweight.Naive()]
 pypids = []
 for pymod in pymods:
   pypids += [forkRegister(pymod, addr)]
@@ -53,8 +55,11 @@ begin = datetime.datetime.now()
 holmes.setFacts([Fact("file", [fileName, fileContent])])
 done = datetime.datetime.now()
 
-print(done - begin)
+print("Time:", done - begin)
 
+byteweight.check(holmes)
+
+"""
 funcs = holmes.deriveFacts([Premise("func", [Bind("fileName", "string")
                                             ,Bind("addr", "addr")])
                           ,Premise("reaches", [Bind("fileName", "string")
@@ -81,7 +86,7 @@ for func in funcs:
       print("No Disassembly available")
     else:
       print(str(asm[0]['asm']))
-
+"""
 import signal
 for pypid in pypids:
   os.kill(pypid, signal.SIGKILL)
