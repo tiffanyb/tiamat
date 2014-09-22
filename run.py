@@ -55,6 +55,12 @@ done = datetime.datetime.now()
 
 print(done - begin)
 
+funcs = holmes.deriveFacts([Premise("func", [Bind("fileName", "string")
+                                            ,Bind("addr", "addr")])
+                          ,Premise("reaches", [Bind("fileName", "string")
+                                              ,Bind("addr", "addr")
+                                              ,Forall("target", "addr")])])
+print(list(funcs))
 import signal
 for pypid in pypids:
   os.kill(pypid, signal.SIGKILL)

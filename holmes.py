@@ -88,28 +88,12 @@ class Exact:
     self.val = val
     self.typ = typ
 
-def register(analysis, addr):
-  client = capnp.TwoPartyClient(addr)
-  holmes = client.ez_restore('holmes').cast_as(holmes_capnp.Holmes)
-  for premise in analysis.premises:
-    argTyper = []
-    for arg in premise.args:
-      argTyper += [{arg.typ : None}]
-    if not holmes.registerType(factName = premise.name, argTypes = argTyper).wait():
-      raise TypeError("Type mismatch for premise: " + str(premise))
-  for conc in analysis.conclusions:
-    argTyper = []
-    for ty in conc.argtys:
-      argTyper += [{ty : None}]
-    if not holmes.registerType(factName = conc.name, argTypes = argTyper).wait():
-      raise TypeError("Type mismatch for conclusion: " + str(conc))
-  req = holmes.analyzer_request()
-  req.name = analysis.name
-  premLen = len(analysis.premises)
-  premiseBuilder = req.init('premises', premLen)
+def convertTemplates(templates, target):
   argNames = []
+  premLen = len(templates)
+  premiseBuilder = target
   for i in range(0, premLen):
-    premise = analysis.premises[i]
+    premise = templates[i]
     premiseBuilder[i].factName = premise.name
     args = premise.args
     argLen = len(args)
@@ -130,6 +114,29 @@ def register(analysis, addr):
         argBuilder[j].unbound = None
       else:
         argBuilder[j].unbound = None
+  return argNames
+ 
+
+def register(analysis, addr):
+  client = capnp.TwoPartyClient(addr)
+  holmes = client.ez_restore('holmes').cast_as(holmes_capnp.Holmes)
+  for premise in analysis.premises:
+    argTyper = []
+    for arg in premise.args:
+      argTyper += [{arg.typ : None}]
+    if not holmes.registerType(factName = premise.name, argTypes = argTyper).wait():
+      raise TypeError("Type mismatch for premise: " + str(premise))
+  for conc in analysis.conclusions:
+    argTyper = []
+    for ty in conc.argtys:
+      argTyper += [{ty : None}]
+    if not holmes.registerType(factName = conc.name, argTypes = argTyper).wait():
+      raise TypeError("Type mismatch for conclusion: " + str(conc))
+  req = holmes.analyzer_request()
+  req.name = analysis.name
+  premLen = len(analysis.premises)
+  premiseBuilder = req.init('premises', premLen)
+  argNames = convertTemplates(analysis.premises, premiseBuilder)
   class Analysis(holmes_capnp.Holmes.Analysis.Server):
     def analyze (self, context, _context, **kwargs):
       cdict = dict(zip(argNames, context))
@@ -166,3 +173,11 @@ class Holmes:
     self.holmes = self.client.ez_restore('holmes').cast_as(holmes_capnp.Holmes)
   def setFacts(self, facts):
     self.holmes.set(list(map(lambda f: f.getRaw(), facts))).wait()
+  def deriveFacts(self, templates):
+    req = self.holmes.derive_request()
+    targetBuilder = req.init('target', len(templates))
+    argNames = convertTemplates(templates, targetBuilder)
+    resp = req.send().wait()
+    for ctx in resp.ctx:
+      cdict = dict(zip(argNames, ctx))
+      yield loadCtx(cdict)
