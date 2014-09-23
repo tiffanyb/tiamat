@@ -120,6 +120,7 @@ def convertTemplates(templates, target):
 def register(analysis, addr):
   client = capnp.TwoPartyClient(addr)
   holmes = client.ez_restore('holmes').cast_as(holmes_capnp.Holmes)
+  analysis.holmes = holmes
   for premise in analysis.premises:
     argTyper = []
     for arg in premise.args:
