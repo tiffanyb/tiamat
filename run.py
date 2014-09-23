@@ -33,7 +33,7 @@ import dumpKV
 import byteweight
 from holmes import *
 # pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc()]
-pymods = [toil.ToIL(), succ.LooseSucc(), reach.ReachSucc(), byteweight.Naive()]
+pymods = [func.MarkFuncs(), toil.ToIL(), succ.LooseSucc(), reach.ReachSucc(), byteweight.Naive()]
 pypids = []
 for pymod in pymods:
   pypids += [forkRegister(pymod, addr)]
@@ -53,18 +53,19 @@ time.sleep(1);
 
 begin = datetime.datetime.now()
 holmes.setFacts([Fact("file", [fileName, fileContent])])
+# holmes.setFacts([Fact("reachable", [fileName, addr])])
 done = datetime.datetime.now()
 
 print("Time:", done - begin)
 
-byteweight.check(holmes)
+# byteweight.check(holmes)
 
-"""
 funcs = holmes.deriveFacts([Premise("func", [Bind("fileName", "string")
                                             ,Bind("addr", "addr")])
                           ,Premise("reaches", [Bind("fileName", "string")
                                               ,Bind("addr", "addr")
                                               ,Forall("body", "addr")])])
+i = 0
 for func in funcs:
   print("Function at: " + hex(func['addr']))
   for addr in func['body']:
@@ -74,19 +75,22 @@ for func in funcs:
     print(hex(addr) + ":")
     il = list(il)
     if len(il) == 0:
-      print("No IL available")
+      print("  No IL available")
     else:
-      print(str(il[0]['il']))
-
+      print("  IL: ", str(il[0]['il']))
+  
     asm = holmes.deriveFacts([Premise("hasasm", [Exact(func['fileName'], "string")
                                                 ,Exact(addr, "addr")
                                                 ,Bind("asm", "string")])])
     asm = list(asm)
     if len(asm) == 0:
-      print("No Disassembly available")
+      print("  No Disassembly available")
     else:
-      print(str(asm[0]['asm']))
-"""
+      print("  Disassembly: ", str(asm[0]['asm']))
+  i += 1
+  if i == 2:
+    break
+
 import signal
 for pypid in pypids:
   os.kill(pypid, signal.SIGKILL)
