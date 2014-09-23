@@ -19,7 +19,8 @@ class Naive():
     threshold = 0.5
     k = 10
     fileName = ""
-
+    sections = []
+    
     """
         Return k consecutive disassembly from addr_s within addr_e
     """
@@ -84,21 +85,38 @@ class Naive():
  
     def analyze(self, fileName, arch, addr_s, data):
         addr_e = addr_s + len(data)
-        asms = self.getAsms(addr_s, addr_e)
         addr = addr_s
         res = []
         self.fileName = fileName
-        while addr <= addr_e:
-            cons_asms = self.getConsecutiveAsms(asms, addr, addr_e, self.k)
-            norm_cons_asms = map(lambda instr: self.normalize(instr), cons_asms)
-            score = self.match(norm_cons_asms)
-            # score = match(norm_cons_asms, trie)
-            if score > threshold:
-                res.append(addr)
-        return map(lambda addr: Conc("func", [fileName, addr]) ,res)
+        slef.sections.append(addr_s, addr_s + len(data))
+        # Below is moved to run() for now
+        # asms = self.getAsms(addr_s, addr_e)
+        # while addr <= addr_e:
+        #     cons_asms = self.getConsecutiveAsms(asms, addr, addr_e, self.k)
+        #     norm_cons_asms = map(lambda instr: self.normalize(instr), cons_asms)
+        #     score = self.match(norm_cons_asms)
+        #     # score = match(norm_cons_asms, trie)
+        #     if score > threshold:
+        #         res.append(addr)
+        # return map(lambda addr: Conc("func", [fileName, addr]) ,res)
         # print(data)
     	# print("=======================================")
-    	# return [Conc("func", [fileName, 0xdeadbeaf])]
+        return [Conc("func", [fileName, 0xdeadbeaf])]
+
+
+    def run():
+        res = []
+        for (addr_s, addr_e) in self.sections:
+            asms = self.getAsms(addr_s, addr_e)
+            for addr in range(addr_s, addr_e):
+                cons_asms = self.getConsecutiveAsms(asms, addr, addr_e, self.k)
+                norm_cons_asms = map(lambda instr: self.normalize(instr), cons_asms)
+                score = self.match(norm_cons_asms)
+                # score = match(norm_cons_asms, trie)
+                if score > threshold:
+                    res.append(addr)
+        print(res)
+        # return map(lambda addr: Conc("func", [fileName, addr]) ,res)
 
 
 def check(holmes):

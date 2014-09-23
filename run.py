@@ -59,7 +59,9 @@ done = datetime.datetime.now()
 print("Time:", done - begin)
 
 # byteweight.check(holmes)
-
+byteweight.Naive.run()
+print("---------------------------------------------------------")
+"""
 funcs = holmes.deriveFacts([Premise("func", [Bind("fileName", "string")
                                             ,Bind("addr", "addr")])
                           ,Premise("reaches", [Bind("fileName", "string")
@@ -90,6 +92,7 @@ for func in funcs:
   i += 1
   if i == 2:
     break
+"""
 
 import signal
 for pypid in pypids:
